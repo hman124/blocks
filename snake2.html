@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Test Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    canvas {
+      border: 2px #000 solid;
+    }
+	
+	#apples{
+	font-weight:bold;
+	font-family:arial;
+	}
+  </style>
+</head>
+
+<body>
+  <canvas width="480" height="600" id="snake"></canvas>
+  <p id="apples">Apples Eaten: 0</p>
+  <script>
+    var canvas = document.getElementById("snake"),
+      ctx = canvas.getContext("2d"),
+      applesEaten = 0,
+      coords = {
+        x: 0,
+        y: 0
+      },
+      appleInt = setInterval(createApple, 2000),
+      apples = [];
+    document.addEventListener("keydown", handleKeyPress);
+
+    function handleKeyPress() {
+      if (event.key == "ArrowDown" && coords.y < 19) {
+        moveTo(coords.x, coords.y + 1);
+        coords.y++;
+      } else if (event.key == "ArrowUp" && coords.y > 0) {
+        moveTo(coords.x, coords.y - 1);
+        coords.y--;
+      } else if (event.key == "ArrowLeft" && coords.x > 0) {
+        moveTo(coords.x - 1, coords.y);
+        coords.x--;
+      } else if (event.key == "ArrowRight" && coords.x < 15) {
+        moveTo(coords.x + 1, coords.y);
+        coords.x++;
+      }
+    }
+
+    function moveTo(x, y) {
+      ctx.fillStyle = "green";
+      ctx.clearRect(coords.x * 30, coords.y * 30, 30, 30);
+      ctx.fillRect(x * 30, y * 30, 30, 30);
+      for (i in apples) {
+        if (apples[i].x == x && apples[i].y == y) {
+          if (apples[i].type == "apple") {
+            apples.splice(i, 1);
+            applesEaten++;
+            if (applesEaten == 25) {
+              clearInterval(appleInt);
+              appleInt = setInterval(createApple, 1500);
+            } else if (applesEaten == 45) {
+              clearInterval(appleInt);
+              appleInt = setInterval(createApple, 1000);
+            } else if (applesEaten == 60) {
+              clearInterval(appleInt);
+              appleInt = setInterval(createApple, 500);
+            } else if (applesEaten == 100) {
+              finish("Victory!");
+            }
+            document.querySelector("#apples").innerHTML = "Apples Eaten: " + applesEaten;
+          } else if (apples[i].type == "poison") {
+            finish("You Ate A Poison Apple");
+          }
+        }
+      }
+    }
+
+    function drawApple(x, y, type) {
+      if (type == "poison") {
+        ctx.fillStyle = "orange";
+      } else {
+        ctx.fillStyle = "red";
+      }
+      ctx.fillRect(x * 30, y * 30, 30, 30);
+    }
+
+    function finish(msg) {
+      clearInterval(appleInt);
+      ctx.fillStyle = "rgba(0,0,0,.7)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      ctx.font = "28px arial";
+      ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
+      ctx.font = "18px arial";
+      ctx.fillText("Click To Restart", canvas.width / 2, (canvas.height / 2) + 28);
+      document.removeEventListener("keydown", handleKeyPress);
+      canvas.addEventListener("click", resetCanvas);
+    }
+
+    function createApple() {
+      let ranX = Math.floor(Math.random() * 17) - 1,
+        ranY = Math.floor(Math.random() * 21) - 1,
+        type = Math.floor(Math.random() * 10) > 2 ? "apple" : "poison";
+      for (i in apples) {
+        if (apples[i].x == ranX && apples[i].y == ranY || ranX == coords.x && ranY == coords.y) {
+          ranX = Math.floor(Math.random() * 15) - 1;
+          ranY = Math.floor(Math.random() * 19) - 1;
+        }
+      }
+      apples.push({
+        x: ranX,
+        y: ranY,
+        type: type
+      });
+      drawApple(ranX, ranY, type);
+    }
+
+    function resetCanvas() {
+      canvas.removeEventListener("click", resetCanvas);
+      apples = [];
+      coords = {
+        x: 0,
+        y: 0
+      };
+      appleInt = setInterval(createApple, 2000);
+      applesEaten = 0;
+      document.addEventListener("keydown", handleKeyPress);
+      document.querySelector("#apples").innerHTML = "Apples Eaten: " + applesEaten;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "green";
+      ctx.fillRect(0, 0, 30, 30);
+    }
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(0, 0, 30, 30);
+  </script>
+
+</body>
+
+</html>
