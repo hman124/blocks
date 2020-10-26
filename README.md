@@ -1,9 +1,9 @@
-# snake
+# blocks
 
-A cool snake game I made in school today.
+A cool game I made today.
 
-Apples spawn in random positions as either a red (normal) or an orange (poisonous) apple.<br>
-When eaten, normal apples will add to your score. If your score is a 100, you win.<br>
-Sometimes, a poisonous apple will disappear and reappear in a random position as either a normal or poisonous apple.
+Apples spawn in random positions as either a red (normal), blue (rare), orange (poisonous), or a green (rotten) apple.<br>
+Eating a red apple will add 1 point, while eating a blue apple will add 5 points.<br>
+Green apples will subtract 5 points and orange apples will kill you. If you have less than 5 points, and you eat a green apple, you will also die.
 
-Try it out: <br>[https://hman124.github.io/snake/](https://hman124.github.io/snake/)
+Try it out: <br>[https://hman124.github.io/blocks/](https://hman124.github.io/blocks/)
