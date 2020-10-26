@@ -7,6 +7,11 @@
   <style>
     canvas {
       border: 2px #000 solid;
+      margin: auto;
+    }
+
+    .game {
+      text-align: center;
     }
 
     #apples {
@@ -17,14 +22,19 @@
 </head>
 
 <body>
-  <canvas width="480" height="600" id="snake"></canvas>
-  <p id="apples">Apples Eaten: 0</p>
+  <div class="game">
+    <canvas width="480" height="600" id="snake"></canvas>
+    <p id="apples">Points: 0</p>
+  </div>
   <script>
     var canvas = document.getElementById("snake"),
       ctx = canvas.getContext("2d"),
       applesEaten,
       appleInt,
-      apples;
+      apples,
+      gamePlaying = 0,
+      image = new Image();
+    image.src = "./bob.png";
 
     function handleKeyPress() {
       if (event.key == "ArrowDown" && coords.y < 19 || event.key == "s" && coords.y < 19) {
@@ -45,42 +55,42 @@
     function moveTo(x, y) {
       ctx.fillStyle = "green";
       ctx.clearRect(coords.x * 30, coords.y * 30, 30, 30);
-      ctx.fillRect(x * 30, y * 30, 30, 30);
-      for (i in apples) {
-        if (apples[i].x == x && apples[i].y == y) {
-          if (apples[i].type == "apple") {
-            apples.splice(i, 1);
-            applesEaten++;
-            if (applesEaten == 25) {
-              clearInterval(appleInt);
-              appleInt = setInterval(createApple, 1500);
-            } else if (applesEaten == 45) {
-              clearInterval(appleInt);
-              appleInt = setInterval(createApple, 1000);
-            } else if (applesEaten == 60) {
-              clearInterval(appleInt);
-              appleInt = setInterval(createApple, 500);
-            } else if (applesEaten == 100) {
-              message("Victory!", "Click To Restart");
-            }
-            document.querySelector("#apples").innerHTML = "Apples Eaten: " + applesEaten;
-          } else if (apples[i].type == "poison") {
-            message("You Died", "Click To Restart");
+      ctx.clearRect(x * 30, y * 30, 30, 30);
+      ctx.drawImage(image, x * 30, y * 30, 30, 30);
+      if (checkItems(x, y)) {
+        for (let i = 0; i < apples.length; i++) {
+          if (apples[i].x != x || apples[i].y != y) continue;
+          if (apples[i].type == 0) {
+            updateAppleCount(1);
+            createApple();
+            deleteApple(i);
+          } else if (apples[i].type == 1) {
+            setMessage("You Died", "You Ate A Poison Apple", "Click To Restart");
+          } else if (apples[i].type == 2) {
+            updateAppleCount(5);
+            deleteApple(i);
+          } else if (apples[i].type == 3) {
+            updateAppleCount(-5);
+            createApple();
+            deleteApple(i);
           }
         }
       }
     }
 
-    function drawApple(x, y, type) {
-      if (type == "poison") {
-        ctx.fillStyle = "orange";
-      } else {
-        ctx.fillStyle = "red";
+    function updateAppleCount(amount) {
+      applesEaten += amount;
+      document.querySelector("#apples").innerHTML = "Points: " + applesEaten;
+      if (applesEaten >= 100) {
+        setMessage("Victory!", "You ate 100 apples!", "Click To Restart");
+        document.querySelector("#apples").innerHTML = "Points: 100";
+      } else if (applesEaten < 0) {
+        setMessage("You Died", "You Ate Too Many Rotten Apples.", "Click To Restart");
       }
-      ctx.fillRect(x * 30, y * 30, 30, 30);
     }
 
-    function message(msg, msg2) {
+    function setMessage(msg, msg2, msg3) {
+      gamePlaying = 0;
       clearInterval(appleInt);
       ctx.fillStyle = "rgba(0,0,0,.7)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -90,55 +100,88 @@
       ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
       ctx.font = "18px arial";
       ctx.fillText(msg2, canvas.width / 2, (canvas.height / 2) + 28);
+      ctx.fillText(msg3, canvas.width / 2, (canvas.height / 2) + 50);
       document.removeEventListener("keydown", handleKeyPress);
       canvas.addEventListener("click", setUpCanvas);
     }
 
+    function checkItems(x, y) {
+      for (let o = 0; o < apples.length; o++) {
+        if (apples[o].x == x && apples[o].y == y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function Apple() {
+      let typeNum = Math.floor(Math.random() * 30);
+      while (!this.x && !this.y) {
+        this.x = Math.floor(Math.random() * 16);
+        this.y = Math.floor(Math.random() * 20);
+        if (checkItems(this.x, this.y) || this.x == coords.x && this.y == coords.y) {
+          this.x = null;
+          this.y = null;
+        }
+      }
+      if (typeNum < 10) {
+        this.type = 0;
+      } else if (typeNum < 20) {
+        this.type = 1;
+      } else if (typeNum < 25) {
+        this.type = 2;
+      } else if (typeNum < 30) {
+        this.type = 3;
+      }
+    }
+
+    function deleteApple(index) {
+      apples.splice(index, 1);
+    }
+
     function createApple() {
-      let ranX = Math.floor(Math.random() * 17) - 1,
-        ranY = Math.floor(Math.random() * 21) - 1,
-        type = Math.floor(Math.random() * 10) > 2 ? "apple" : "poison";
-      for (i in apples) {
-        if (apples[i].x == ranX && apples[i].y == ranY || ranX == coords.x && ranY == coords.y) {
-          ranX = Math.floor(Math.random() * 15) - 1;
-          ranY = Math.floor(Math.random() * 19) - 1;
-        }
+      if(gamePlaying == 0) return;
+      let newapple = new Apple();
+      switch (newapple.type) {
+        case 0:
+          ctx.fillStyle = "red";
+          break;
+        case 1:
+          ctx.fillStyle = "#ff9900";
+          break;
+        case 2:
+          ctx.fillStyle = "blue";
+          break;
+        case 3:
+          ctx.fillStyle = "green";
+          break;
       }
-      if (Math.floor(Math.random() * 10) == 1) {
-        for (i in apples) {
-          if (apples[i].type == "poison") {
-            ctx.clearRect(apples[i].x * 30, apples[i].y * 30, 30, 30);
-            apples.splice(i, 1);
-            break;
-          }
-        }
-      }
+      ctx.fillRect(newapple.x * 30, newapple.y * 30, 30, 30);
       apples.push({
-        x: ranX,
-        y: ranY,
-        type: type
+        x: newapple.x,
+        y: newapple.y,
+        type: newapple.type
       });
-      drawApple(ranX, ranY, type);
     }
 
     function setUpCanvas() {
       canvas.removeEventListener("click", setUpCanvas);
       apples = [];
       coords = {
-        x: 0,
-        y: 0
+        x: 8,
+        y: 8
       };
-      appleInt = setInterval(createApple, 2000);
+      gamePlaying = 1;
+      appleInt = setInterval(createApple, 500);
       applesEaten = 0;
       document.addEventListener("keydown", handleKeyPress);
-      document.querySelector("#apples").innerHTML = "Apples Eaten: " + applesEaten;
+      document.querySelector("#apples").innerHTML = "Points: " + applesEaten;
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "green";
-      ctx.fillRect(0, 0, 30, 30);
+      ctx.drawImage(image, coords.x * 30, coords.y * 30, 30, 30);
     }
 
-    message("Click To Start", "Use Arrow Keys Or WASD To Play")
+    setMessage("Click To Start", "Use Arrow Keys Or WASD To Play")
   </script>
 
 </body>
