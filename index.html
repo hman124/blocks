@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Test Site</title>
+  <title>Blocks</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     canvas {
@@ -37,16 +37,20 @@
     image.src = "./bob.png";
 
     function handleKeyPress() {
-      if (event.key == "ArrowDown" && coords.y < 19 || event.key == "s" && coords.y < 19) {
+      if (event.key == "ArrowDown" && coords.y < 19 
+          || event.key == "s" && coords.y < 19) {
         moveTo(coords.x, coords.y + 1);
         coords.y++;
-      } else if (event.key == "ArrowUp" && coords.y > 0 || event.key == "w" && coords.y > 0) {
+      } else if (event.key == "ArrowUp" && coords.y > 0 
+          || event.key == "w" && coords.y > 0) {
         moveTo(coords.x, coords.y - 1);
         coords.y--;
-      } else if (event.key == "ArrowLeft" && coords.x > 0 || event.key == "a" && coords.x > 0) {
+      } else if (event.key == "ArrowLeft" && coords.x > 0 
+          || event.key == "a" && coords.x > 0) {
         moveTo(coords.x - 1, coords.y);
         coords.x--;
-      } else if (event.key == "ArrowRight" && coords.x < 15 || event.key == "d" && coords.x < 15) {
+      } else if (event.key == "ArrowRight" && coords.x < 15 
+          || event.key == "d" && coords.x < 15) {
         moveTo(coords.x + 1, coords.y);
         coords.x++;
       }
@@ -65,7 +69,8 @@
             createApple();
             deleteApple(i);
           } else if (apples[i].type == 1) {
-            setMessage("You Died", "You Ate A Poison Apple", "Click To Restart");
+            setMessage("You Died", 
+                       "You Ate A Poison Apple", "Click To Restart");
           } else if (apples[i].type == 2) {
             updateAppleCount(5);
             deleteApple(i);
@@ -80,12 +85,14 @@
 
     function updateAppleCount(amount) {
       applesEaten += amount;
-      document.querySelector("#apples").innerHTML = "Points: " + applesEaten;
+      document.querySelector("#apples").innerHTML = 
+        "Points: " + applesEaten;
       if (applesEaten >= 100) {
         setMessage("Victory!", "You ate 100 apples!", "Click To Restart");
         document.querySelector("#apples").innerHTML = "Points: 100";
       } else if (applesEaten < 0) {
-        setMessage("You Died", "You Ate Too Many Rotten Apples.", "Click To Restart");
+        setMessage("You Died",
+                   "You Ate Too Many Rotten Apples.", "Click To Restart");
       }
     }
 
